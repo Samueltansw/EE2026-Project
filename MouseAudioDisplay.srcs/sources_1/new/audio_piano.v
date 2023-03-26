@@ -35,6 +35,7 @@ module audio_piano(
     input [15:0] sw,                            //The note keys
     input btnC,                                 //This button clears the recording
     input btnL,                                 //This button plays the recording
+    input btnR,
     output [11:0] piano_audio_signal,           //Output the note sound
     output [15:9] led                           //Display led on corresponding note (only for recording)
     );
@@ -57,25 +58,25 @@ module audio_piano(
     //Audio for the recording
     wire [11:0] audio_recording;
 
-   //Frequency associated with each piano note
-   clk440 clk_A(clock, audio_note_A);
-   clk494 clk_B(clock, audio_note_B);
-   clk262 clk_C(clock, audio_note_C);
-   clk294 clk_D(clock, audio_note_D);
-   clk320 clk_E(clock, audio_note_E);
-   clk350 clk_F(clock, audio_note_F);
-   clk392 clk_G(clock, audio_note_G);
+    //Frequency associated with each piano note
+    clk440 clk_A(clock, audio_note_A);
+    clk494 clk_B(clock, audio_note_B);
+    clk262 clk_C(clock, audio_note_C);
+    clk294 clk_D(clock, audio_note_D);
+    clk320 clk_E(clock, audio_note_E);
+    clk350 clk_F(clock, audio_note_F);
+    clk392 clk_G(clock, audio_note_G);
 
-   //Assigning switches to each piano note
-   assign piano_audio_signal = (sw[15]) ? ((audio_note_A == 0)    ? audio_volume[11:0] : 0) :
-                               (sw[14]) ? ((audio_note_B == 0)    ? audio_volume[11:0] : 0) :
-                               (sw[13]) ? ((audio_note_C == 0)    ? audio_volume[11:0] : 0) :
-                               (sw[12]) ? ((audio_note_D == 0)    ? audio_volume[11:0] : 0) :
-                               (sw[11]) ? ((audio_note_E == 0)    ? audio_volume[11:0] : 0) :
-                               (sw[10]) ? ((audio_note_F == 0)    ? audio_volume[11:0] : 0) :
-                               (sw[9])  ? ((audio_note_G == 0)    ? audio_volume[11:0] : 0) :
-                               (sw[8])  ? ((audio_recording == 0) ? audio_volume[11:0] : 0) :
-                               11'b0;
+    //Assigning switches to each piano note
+    assign piano_audio_signal = (sw[15]) ? ((audio_note_A == 0)    ? audio_volume[11:0] : 0) :
+                                (sw[14]) ? ((audio_note_B == 0)    ? audio_volume[11:0] : 0) :
+                                (sw[13]) ? ((audio_note_C == 0)    ? audio_volume[11:0] : 0) :
+                                (sw[12]) ? ((audio_note_D == 0)    ? audio_volume[11:0] : 0) :
+                                (sw[11]) ? ((audio_note_E == 0)    ? audio_volume[11:0] : 0) :
+                                (sw[10]) ? ((audio_note_F == 0)    ? audio_volume[11:0] : 0) :
+                                (sw[9])  ? ((audio_note_G == 0)    ? audio_volume[11:0] : 0) :
+                                (sw[8])  ? ((audio_recording == 0) ? audio_volume[11:0] : 0) :
+                                11'b0;
 
 
 
@@ -84,34 +85,33 @@ module audio_piano(
     //Encoder: Encoded notes so that bitsize of sound_recording will not be absurdly long.
     wire [2:0] encoded_note;
     assign encoded_note [2:0] = (sw[15]) ? 3'b001 :
-                                (sw[14]) ? 3'b010 :
-                                (sw[13]) ? 3'b011 :
+                                (sw[14]) ? 3'b010 :                                (sw[13]) ? 3'b011 :
                                 (sw[12]) ? 3'b100 :
                                 (sw[11]) ? 3'b101 :
                                 (sw[10]) ? 3'b110 :
                                 (sw[9])  ? 3'b111 :
                                 3'b0;
 
-   //Decoder sound: Based on note_to_play, assign appropriate note to audio_recording.
-   wire [2:0] note_to_play;
-   assign audio_recording = (note_to_play == 3'b001) ? ((audio_note_A == 0) ? audio_volume[11:0] : 0) :
-                            (note_to_play == 3'b010) ? ((audio_note_B == 0) ? audio_volume[11:0] : 0) :
-                            (note_to_play == 3'b011) ? ((audio_note_C == 0) ? audio_volume[11:0] : 0) :
-                            (note_to_play == 3'b100) ? ((audio_note_D == 0) ? audio_volume[11:0] : 0) :
-                            (note_to_play == 3'b101) ? ((audio_note_E == 0) ? audio_volume[11:0] : 0) :
-                            (note_to_play == 3'b110) ? ((audio_note_F == 0) ? audio_volume[11:0] : 0) :
-                            (note_to_play == 3'b111) ? ((audio_note_G == 0) ? audio_volume[11:0] : 0) :
-                            11'b0;
+    //Decoder sound: Based on note_to_play, assign appropriate note to audio_recording.
+    wire [2:0] note_to_play;
+    assign audio_recording = (note_to_play == 3'b001) ? ((audio_note_A == 0) ? audio_volume[11:0] : 0) :
+                             (note_to_play == 3'b010) ? ((audio_note_B == 0) ? audio_volume[11:0] : 0) :
+                             (note_to_play == 3'b011) ? ((audio_note_C == 0) ? audio_volume[11:0] : 0) :
+                             (note_to_play == 3'b100) ? ((audio_note_D == 0) ? audio_volume[11:0] : 0) :
+                             (note_to_play == 3'b101) ? ((audio_note_E == 0) ? audio_volume[11:0] : 0) :
+                             (note_to_play == 3'b110) ? ((audio_note_F == 0) ? audio_volume[11:0] : 0) :
+                             (note_to_play == 3'b111) ? ((audio_note_G == 0) ? audio_volume[11:0] : 0) :
+                             11'b0;
 
-   //Decoder led: Based on note_to_play, assign appropriate note to audio_recording.
-   assign led [15:9] = (note_to_play [2:0] == 3'b001) ? 7'b1000000 :
-                       (note_to_play [2:0] == 3'b010) ? 7'b0100000 :
-                       (note_to_play [2:0] == 3'b011) ? 7'b0010000 :
-                       (note_to_play [2:0] == 3'b100) ? 7'b0001000 :
-                       (note_to_play [2:0] == 3'b101) ? 7'b0000100 :
-                       (note_to_play [2:0] == 3'b110) ? 7'b0000010 :
-                       (note_to_play [2:0] == 3'b111) ? 7'b0000001 :
-                       7'b0000000;
+    //Decoder led: Based on note_to_play, assign appropriate note to audio_recording.
+    assign led [15:9] = (note_to_play [2:0] == 3'b001) ? 7'b1000000 :
+                        (note_to_play [2:0] == 3'b010) ? 7'b0100000 :
+                        (note_to_play [2:0] == 3'b011) ? 7'b0010000 :
+                        (note_to_play [2:0] == 3'b100) ? 7'b0001000 :
+                        (note_to_play [2:0] == 3'b101) ? 7'b0000100 :
+                        (note_to_play [2:0] == 3'b110) ? 7'b0000010 :
+                        (note_to_play [2:0] == 3'b111) ? 7'b0000001 :
+                        7'b0000000;
 
 
     //This determines whether a note needs to be recorded.
@@ -132,6 +132,7 @@ module audio_piano(
 
     //To turn on the recording.
     reg play_recording = 0;
+    reg start_practice = 0;
 
     always @ (posedge clock) begin
         if (sw[1]) begin
@@ -147,6 +148,12 @@ module audio_piano(
                 play_recording = 1;
                 slow_clock = 0;
             end
+
+            //For practice
+            if (btnR == 1) begin
+                start_practice = 1;
+            end
+
 
             //Base case: when recording has ended.
             if (note_count < slow_clock) begin
@@ -164,18 +171,24 @@ module audio_piano(
                 end
             end
 
-           //Due to the logic of 'Must be from all switch off to only 1 switch on to be recorded' mentioned.
-           if (encoded_note == 3'b000) begin
+            //Due to the logic of 'Must be from all switch off to only 1 switch on to be recorded' mentioned.
+            if (encoded_note == 3'b000) begin
                 get_next_note = 1;
-           end
+            end
 
-           //Adding the recorded note to the recording
-           if (get_next_note && encoded_note != 3'b000) begin
+            //Adding the recorded note to the recording
+            if (get_next_note && encoded_note != 3'b000 && !start_practice) begin
                 sound_recording = (sound_recording << 3) + encoded_note;
                 note_count = note_count + 1;
                 get_next_note = 0;
-           end
-       end
+            end
+
+            if (start_practice) begin
+                if (note_to_play == encoded_note) begin
+                    slow_clock = slow_clock + 1;
+                end
+            end
+        end
     end
 
 

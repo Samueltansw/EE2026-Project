@@ -82,7 +82,7 @@ module Top_Student (
 
     //Module for Personal Improvement: Piano keys {SW[15:9]}, ability to record {automatically}
     //and playback {btnL:LED, SW8:sound}.
-    audio_piano audio_piano (clock, sw[15:0], btnC, btnL, piano_audio_signal[11:0], piano_led[15:9]);
+    audio_piano audio_piano (clock, sw[15:0], btnC, btnL, btnR, piano_audio_signal[11:0], piano_led[15:9]);
 
     //Audio module: Just need to pass the audio data into this
     Audio_Output myAudioOutput(.CLK(signal50M), .START(signal20k), .DATA1(audio_signal[11:0]), .RST(0)
