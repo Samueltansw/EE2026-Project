@@ -16,6 +16,7 @@ module Top_Student (
         input clock,
         input btnR,
         input btnC,
+        input btnL,
         inout ps2_clk, ps2_data,
         input [15:0] sw,
         output [7:0] JB,
@@ -61,10 +62,40 @@ module Top_Student (
     Mouse_control pointer(clock, ps2_clk, ps2_data, X, Y, mouse_pixel_data, mouse_click_seg);
     Oled_digit_display_controller control(mouse_click_seg, sw[9:1], oled_seg, is_valid_number);
     Oled_digit_display display_digit(sw[0], oled_seg, X, Y, digit_pixel_data);
+
     // Check and display valid number
-    Valid_number_check check_valid_number(clock, is_valid_number, oled_seg, sw[15], seg, an, dp, led[15]);
-    
-    audio_out audio_out (clock, btnC, sw[0], is_valid_number, oled_seg [6:0], JXADC [3:0]);
+    wire [15:0] valid_num_led;
+    Valid_number_check check_valid_number(clock, is_valid_number, oled_seg, sw[15], seg, an, dp, valid_num_led[15]);
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //-------------------------------------------Audio Out Part-----------------------------------------------//
+    wire [11:0] default_audio_signal;
+    wire [11:0] piano_audio_signal;
+    wire [11:0] audio_signal;
+    wire [15:0] piano_led;
+
+    wire signal50M; clock_50m s50M (clock, signal50M); //Clock speed for the audio ouput
+    wire signal20k; clock_20k s20k (clock, signal20k); //Sampling rate for the audio output
+
+    //Module for Individual Task: btnC plays sound, SW[1] affects tone and pitch
+    audio_out audio_out (clock, btnC, sw[0], is_valid_number, oled_seg [6:0], default_audio_signal[11:0]);
+
+    //Module for Personal Improvement: Piano keys {SW[15:9]}, ability to record {automatically}
+    //and playback {btnL:LED, SW8:sound}.
+    audio_piano audio_piano (clock, sw[15:0], btnC, btnL, piano_audio_signal[11:0], piano_led[15:9]);
+
+    //Audio module: Just need to pass the audio data into this
+    Audio_Output myAudioOutput(.CLK(signal50M), .START(signal20k), .DATA1(audio_signal[11:0]), .RST(0)
+            , .D1(JXADC[1]), .D2(JXADC[2]), .CLK_OUT(JXADC[3]), .nSYNC(JXADC[0]));
+
+
+    assign audio_signal = (sw[1]) ? piano_audio_signal:
+                                    default_audio_signal;
+
+    assign led[15:0] = (sw[1]) ? piano_led[15:0] :
+                                 valid_num_led[15:0];
+    //---------------------------------------------------------------------------------------------------------//
+
 
     assign oled_pixel_data = mouse_pixel_data ? mouse_pixel_data : digit_pixel_data;
 

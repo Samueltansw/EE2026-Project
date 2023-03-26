@@ -26,7 +26,7 @@ module audio_out(
     input sw0,
     input is_valid_number,
     input [6:0] oled_seg,
-    output [3:0] JXADC
+    output [11:0] audio_out
     );
     
     parameter ZERO = 7'b1000000;
@@ -39,19 +39,6 @@ module audio_out(
     parameter SEVEN = 7'b1111000;
     parameter EIGHT = 7'b0000000;
     parameter NINE = 7'b0010000;
-    
-    //Contains the frequency and amplitude data of the sound
-    wire [11:0] audio_out; 
-    
-    //Clock speed for the audio ouput
-    wire signal50M; clock_50m s50M (clock, signal50M);
-
-    //Sampling rate for the audio output 
-    wire signal20k; clock_20k s20k (clock, signal20k);
-    
-    //Audio module: Just need to pass the audio data into this
-    Audio_Output myAudioOutput(.CLK(signal50M), .START(signal20k), .DATA1(audio_out[11:0]), .RST(0)
-            , .D1(JXADC[1]), .D2(JXADC[2]), .CLK_OUT(JXADC[3]), .nSYNC(JXADC[0])); 
 
     //Determines the duration of the sound: [0,1] seconds
     reg [26:0] counter_clk = 27'b101111101011110000100000000;
