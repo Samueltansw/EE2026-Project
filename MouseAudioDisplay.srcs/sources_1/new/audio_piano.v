@@ -26,9 +26,7 @@
 //SW8-Sound Recording, btnL-Start Recording, btnC-Delete Recording
 //Mode #1: Only LED         (btnL)
 //Mode #2: LED and Sound    (btnL + SW8)
-//
-//Possible Additional Improvements:
-//1. 'Teach' a recorded song: Based on the recording, prompt the next switch to on
+//Mode #3: Teaching Song    (btnR)
 
 module audio_piano(
     input clock,
@@ -85,7 +83,8 @@ module audio_piano(
     //Encoder: Encoded notes so that bitsize of sound_recording will not be absurdly long.
     wire [2:0] encoded_note;
     assign encoded_note [2:0] = (sw[15]) ? 3'b001 :
-                                (sw[14]) ? 3'b010 :                                (sw[13]) ? 3'b011 :
+                                (sw[14]) ? 3'b010 :
+                                (sw[13]) ? 3'b011 :
                                 (sw[12]) ? 3'b100 :
                                 (sw[11]) ? 3'b101 :
                                 (sw[10]) ? 3'b110 :
@@ -183,6 +182,7 @@ module audio_piano(
                 get_next_note = 0;
             end
 
+            //Teaching feature: LED will prompt which is the next key to play
             if (start_practice) begin
                 if (note_to_play == encoded_note) begin
                     slow_clock = slow_clock + 1;
