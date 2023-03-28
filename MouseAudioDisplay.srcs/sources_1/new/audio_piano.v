@@ -53,6 +53,15 @@ module audio_piano(
     wire [11:0] audio_note_F; //350Hz
     wire [11:0] audio_note_G; //392Hz
 
+    reg [6:0] key_note_A = 7'b1000000;
+    reg [6:0] key_note_B = 7'b0100000;
+    reg [6:0] key_note_C = 7'b0010000;
+    reg [6:0] key_note_D = 7'b0001000;
+    reg [6:0] key_note_E = 7'b0000100;
+    reg [6:0] key_note_F = 7'b0000010;
+    reg [6:0] key_note_G = 7'b0000001;
+
+
     //Audio for the recording
     wire [11:0] audio_recording;
 
@@ -66,15 +75,15 @@ module audio_piano(
     clk392 clk_G(clock, audio_note_G);
 
     //Assigning switches to each piano note
-    assign piano_audio_signal = (sw[15]) ? ((audio_note_A == 0)    ? audio_volume[11:0] : 0) :
-                                (sw[14]) ? ((audio_note_B == 0)    ? audio_volume[11:0] : 0) :
-                                (sw[13]) ? ((audio_note_C == 0)    ? audio_volume[11:0] : 0) :
-                                (sw[12]) ? ((audio_note_D == 0)    ? audio_volume[11:0] : 0) :
-                                (sw[11]) ? ((audio_note_E == 0)    ? audio_volume[11:0] : 0) :
-                                (sw[10]) ? ((audio_note_F == 0)    ? audio_volume[11:0] : 0) :
-                                (sw[9])  ? ((audio_note_G == 0)    ? audio_volume[11:0] : 0) :
-                                (sw[8])  ? ((audio_recording == 0) ? audio_volume[11:0] : 0) :
-                                11'b0;
+    assign piano_audio_signal = (sw[15:9] == key_note_A[6:0])  ? ((audio_note_A == 0)    ? audio_volume[11:0] : 0) :
+                                (sw[15:9] == key_note_B[6:0])  ? ((audio_note_B == 0)    ? audio_volume[11:0] : 0) :
+                                (sw[15:9] == key_note_C[6:0])  ? ((audio_note_C == 0)    ? audio_volume[11:0] : 0) :
+                                (sw[15:9] == key_note_D[6:0])  ? ((audio_note_D == 0)    ? audio_volume[11:0] : 0) :
+                                (sw[15:9] == key_note_E[6:0])  ? ((audio_note_E == 0)    ? audio_volume[11:0] : 0) :
+                                (sw[15:9] == key_note_F[6:0])  ? ((audio_note_F == 0)    ? audio_volume[11:0] : 0) :
+                                (sw[15:9] == key_note_G[6:0])  ? ((audio_note_G == 0)    ? audio_volume[11:0] : 0) :
+                                (sw[8] && sw[15:9] == 0)       ? ((audio_recording == 0) ? audio_volume[11:0] : 0) :
+                                                                 11'b0;
 
 
 
@@ -82,14 +91,14 @@ module audio_piano(
 
     //Encoder: Encoded notes so that bitsize of sound_recording will not be absurdly long.
     wire [2:0] encoded_note;
-    assign encoded_note [2:0] = (sw[15]) ? 3'b001 :
-                                (sw[14]) ? 3'b010 :
-                                (sw[13]) ? 3'b011 :
-                                (sw[12]) ? 3'b100 :
-                                (sw[11]) ? 3'b101 :
-                                (sw[10]) ? 3'b110 :
-                                (sw[9])  ? 3'b111 :
-                                3'b0;
+    assign encoded_note [2:0] = (sw[15:9] == key_note_A[6:0])  ? 3'b001 :
+                                (sw[15:9] == key_note_B[6:0])  ? 3'b010 :
+                                (sw[15:9] == key_note_C[6:0])  ? 3'b011 :
+                                (sw[15:9] == key_note_D[6:0])  ? 3'b100 :
+                                (sw[15:9] == key_note_E[6:0])  ? 3'b101 :
+                                (sw[15:9] == key_note_F[6:0])  ? 3'b110 :
+                                (sw[15:9] == key_note_G[6:0])  ? 3'b111 :
+                                                                 3'b0;
 
     //Decoder sound: Based on note_to_play, assign appropriate note to audio_recording.
     wire [2:0] note_to_play;
