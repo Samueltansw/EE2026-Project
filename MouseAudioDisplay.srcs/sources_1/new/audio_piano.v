@@ -98,7 +98,7 @@ module audio_piano(
                                 (sw[15:9] == key_note_E[6:0])  ? 3'b101 :
                                 (sw[15:9] == key_note_F[6:0])  ? 3'b110 :
                                 (sw[15:9] == key_note_G[6:0])  ? 3'b111 :
-                                                                 3'b0;
+                                                                 3'b000;
 
     //Decoder sound: Based on note_to_play, assign appropriate note to audio_recording.
     wire [2:0] note_to_play;
@@ -109,7 +109,7 @@ module audio_piano(
                              (note_to_play == 3'b101) ? ((audio_note_E == 0) ? audio_volume[11:0] : 0) :
                              (note_to_play == 3'b110) ? ((audio_note_F == 0) ? audio_volume[11:0] : 0) :
                              (note_to_play == 3'b111) ? ((audio_note_G == 0) ? audio_volume[11:0] : 0) :
-                             11'b0;
+                                                        11'b0;
 
     //Decoder led: Based on note_to_play, assign appropriate note to audio_recording.
     assign led [15:9] = (note_to_play [2:0] == 3'b001) ? 7'b1000000 :
@@ -119,7 +119,7 @@ module audio_piano(
                         (note_to_play [2:0] == 3'b101) ? 7'b0000100 :
                         (note_to_play [2:0] == 3'b110) ? 7'b0000010 :
                         (note_to_play [2:0] == 3'b111) ? 7'b0000001 :
-                        7'b0000000;
+                                                         7'b0000000;
 
 
     //This determines whether a note needs to be recorded.
@@ -262,7 +262,7 @@ module audio_piano(
                           (note_count - slow_clock == 57) ? sound_recording[173:171] :
                           (note_count - slow_clock == 58) ? sound_recording[176:174] :
                           (note_count - slow_clock == 59) ? sound_recording[179:177] :
-                          3'b000;
+                                                            3'b000;
 
     //Debugging code (Please Ignore):
 
